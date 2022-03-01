@@ -1,0 +1,24 @@
+.popUpContainer{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    /*height: 100px;*/
+    width: 100%;
+
+    text-align: center;
+    border-radius: 10px;
+    transition: 0.5s transform ease-out;
+}
+.text{
+    padding: 20px 20px;
+}
+
+.error{
+    background-color: rgba(255, 0, 0, 0.5);
+}
+.success{
+    background-color: rgba(72, 255, 0, 0.5);
+}
+.hide{
+    transform: translateY(100%);
+}

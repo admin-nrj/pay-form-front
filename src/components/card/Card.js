@@ -6,7 +6,6 @@ const Card = () => {
     const [values, setValues] = useState({ccNumber: '', ccMonth: '', ccYear: '', ccCSC: '', amount: ''});
     const [hasErrors, setErrors] = useState(true);
 
-
     function checkNumberValue(text) {
         return text === '' || regexpNums.test(text)
     }
