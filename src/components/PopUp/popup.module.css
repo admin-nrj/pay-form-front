@@ -2,15 +2,14 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    /*height: 100px;*/
     width: 100%;
-
     text-align: center;
-    border-radius: 10px;
+    border-radius: 10px 10px 0 0;
     transition: 0.5s transform ease-out;
 }
 .text{
-    padding: 20px 20px;
+    padding: 40px 40px;
+    font-size: 20px;
 }
 
 .error{

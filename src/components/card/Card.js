@@ -1,10 +1,13 @@
 import React, {useState} from 'react';
 import s from './card.module.css'
+import {api} from "../../api/apiService";
+import Loader from "../Loader/Loader";
 
-const Card = () => {
+const Card = ({showPopUpHandler}) => {
     const regexpNums = /^[0-9\b]+$/;
     const [values, setValues] = useState({ccNumber: '', ccMonth: '', ccYear: '', ccCSC: '', amount: ''});
     const [hasErrors, setErrors] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
     function checkNumberValue(text) {
         return text === '' || regexpNums.test(text)
@@ -36,16 +39,16 @@ const Card = () => {
             return true;
         }
 
-        if (values?.amount.length<1 || parseInt(values?.amount)<=0)
+        if (values?.amount.length < 1 || parseInt(values?.amount) <= 0)
             return true;
 
         const today = new Date();
         const someday = new Date();
-        if (values?.ccMonth<1 || values?.ccMonth>12 || values?.ccYear.length<1 )
+        if (values?.ccMonth < 1 || values?.ccMonth > 12 || values?.ccYear.length < 1)
             return true;
 
         if (parseInt(values?.ccMonth) || parseInt(values?.ccYear))
-            someday.setFullYear(values.ccYear, values.ccMonth, 1);
+            someday.setFullYear(values.ccYear, values.ccMonth - 1, 1);
 
         if (someday < today) {
             return true
@@ -56,75 +59,91 @@ const Card = () => {
 
     const separate = (xs, s) => xs.length ? [xs.slice(0, s), ...separate(xs.slice(s), s)] : []
 
+    const onclickHandler = () => {
+        setIsLoading(true);
+        api.sendPayment(values)
+            .then(res => {
+                const type = res.isOk? 'success' : 'error'
+                const message = res.isOk ? `Платёж на сумму ${res.amount} успешно зачислен. 
+                Идентификатор платежа ${res.requestId}`: res.message
+                showPopUpHandler(type,message)
+            })
+            .finally(()=>setIsLoading(false))
+    }
+
     return (
-        <div className={s.cardWrapper}>
-            <div className={s.card}>
-                <h2>Invoice</h2>
-                <div className={s.payLogos}>
-                    <img src={'payLogo.png'} alt={'patLogo'}/>
-                </div>
-                <div className={s.field + ' ' + s.cardNumber}>
-                    <label>Card number</label>
-                    <input
-                        value={values.ccNumber ? values.ccNumber : ''}
-                        onChange={(e) => {
-                            onChangeHandler("ccNumber", e.target.value)
-                        }}
-                        type={'tel'}
-                        inputMode={"numeric"}
-                        pattern={"[0-9]*"}
-                        autoComplete={"cc-number"}
-                        maxLength={19}
-                        placeholder={"xxxx xxxx xxxx xxxx"}/>
-                </div>
-                <div className={s.cardDateCVV}>
-                    <div className={s.field}>
-                        <label>Expiration Date</label>
-                        <div className={s.expDate}>
-                            <input
-                                value={values.ccMonth ? values.ccMonth : ''}
-                                onChange={(e) => {
-                                    onChangeHandler("ccMonth", e.target.value)
-                                }}
-                                inputMode={"numeric"} maxLength={2} autoComplete={"cc-exp-month"}
-                                   placeholder={'MM'}/>
-                            <span>/</span>
-                            <input
-                                value={values.ccYear ? values.ccYear : ''}
-                                onChange={(e) => {
-                                    onChangeHandler("ccYear", e.target.value)
-                                }}
-                                inputMode={"numeric"} maxLength={4} autoComplete={"cc-exp-year"}
-                                   placeholder={'YYYY'}/>
+        <>
+            <Loader isActive={isLoading}/>
+            <div className={s.cardWrapper}>
+                <div className={s.card}>
+                    <form>
+                        <h2>Invoice</h2>
+                        <div className={s.payLogos}>
+                            <img src={'payLogo.png'} alt={'patLogo'}/>
                         </div>
-                    </div>
-                    <div className={s.field + ' ' + s.cvv}>
-                        <label>CVV</label>
-                        <input
-                            value={values.ccCSC ? values.ccCSC : ''}
-                            onChange={(e) => {
-                                onChangeHandler("ccCSC", e.target.value)
-                            }}
-                            type={"password"}
-                            inputMode={"numeric"} required autoComplete="cc-csc" maxLength={3}
-                            placeholder={"xxxx xxxx xxxx xxxx"}/>
-                    </div>
-                </div>
-                <div className={s.field + ' ' + s.amount}>
-                    <label>Amount</label>
-                    <input value={values.amount ? values.amount : ''}
-                           onChange={(e) => {
-                               onChangeHandler("amount", e.target.value)
-                           }}
-                           type={'tel'} inputMode={"numeric"} maxLength={19}
-                           placeholder={"xxx"}/>
-                </div>
-                <div className={s.btn}>
-                    <button disabled={hasErrors} type={"submit"}>Submit</button>
+                        <div className={s.field + ' ' + s.cardNumber}>
+                            <label>Card number</label>
+                            <input
+                                value={values.ccNumber ? values.ccNumber : ''}
+                                onChange={(e) => {
+                                    onChangeHandler("ccNumber", e.target.value)
+                                }}
+                                type={'tel'}
+                                inputMode={"numeric"}
+                                pattern={"[0-9]*"}
+                                autoComplete={"cc-number"}
+                                maxLength={19}
+                                placeholder={"xxxx xxxx xxxx xxxx"}/>
+                        </div>
+                        <div className={s.cardDateCVV}>
+                            <div className={s.field}>
+                                <label>Expiration Date</label>
+                                <div className={s.expDate}>
+                                    <input
+                                        value={values.ccMonth ? values.ccMonth : ''}
+                                        onChange={(e) => {
+                                            onChangeHandler("ccMonth", e.target.value)
+                                        }}
+                                        inputMode={"numeric"} maxLength={2} autoComplete={"cc-exp-month"}
+                                        placeholder={'MM'}/>
+                                    <span>/</span>
+                                    <input
+                                        value={values.ccYear ? values.ccYear : ''}
+                                        onChange={(e) => {
+                                            onChangeHandler("ccYear", e.target.value)
+                                        }}
+                                        inputMode={"numeric"} maxLength={4} autoComplete={"cc-exp-year"}
+                                        placeholder={'YYYY'}/>
+                                </div>
+                            </div>
+                            <div className={s.field + ' ' + s.cvv}>
+                                <label>CVV</label>
+                                <input
+                                    value={values.ccCSC ? values.ccCSC : ''}
+                                    onChange={(e) => {
+                                        onChangeHandler("ccCSC", e.target.value)
+                                    }}
+                                    type={"password"}
+                                    inputMode={"numeric"} required autoComplete="cc-csc" maxLength={3}
+                                    placeholder={"xxxx xxxx xxxx xxxx"}/>
+                            </div>
+                        </div>
+                        <div className={s.field + ' ' + s.amount}>
+                            <label>Amount</label>
+                            <input value={values.amount ? values.amount : ''}
+                                   onChange={(e) => {
+                                       onChangeHandler("amount", e.target.value)
+                                   }}
+                                   type={'tel'} inputMode={"numeric"} maxLength={19}
+                                   placeholder={"xxx"}/>
+                        </div>
+                        <div className={s.btn}>
+                            <button disabled={hasErrors} type={"submit"} onClick={onclickHandler}>Submit</button>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-        </div>
+        </>
     );
 };
 
