@@ -6,7 +6,7 @@ import Loader from "../Loader/Loader";
 const Card = ({showPopUpHandler}) => {
     const regexpNums = /^[0-9\b]+$/;
     const [values, setValues] = useState({ccNumber: '', ccMonth: '', ccYear: '', ccCSC: '', amount: ''});
-    const [hasErrors, setErrors] = useState(true);
+    const [errors, setErrors] = useState({ccNumber: '', ccDate: '', ccCSC: '', amount: ''});
     const [isLoading, setIsLoading] = useState(false);
 
     function checkNumberValue(text) {
@@ -32,29 +32,34 @@ const Card = ({showPopUpHandler}) => {
     }
 
     function validate(values) {
+        let ccNumber='';
+        let ccCSC='';
+        let amount='';
+        let ccDate = '';
+
         if (values?.ccNumber.length !== 19)
-            return true;
+            ccNumber='Length of card number must be 16';
 
         if (values?.ccCSC.length !== 3) {
-            return true;
+            ccCSC='Length of CVC must be 3'
         }
 
         if (values?.amount.length < 1 || parseInt(values?.amount) <= 0)
-            return true;
+            amount='Amount must be greater that 0';
 
         const today = new Date();
         const someday = new Date();
         if (values?.ccMonth < 1 || values?.ccMonth > 12 || values?.ccYear.length < 1)
-            return true;
+            ccDate = 'Month must be value from 1 to 12'
 
         if (parseInt(values?.ccMonth) || parseInt(values?.ccYear))
             someday.setFullYear(values.ccYear, values.ccMonth - 1, 1);
 
         if (someday < today) {
-            return true
+            ccDate = "Date can't be from past"
         }
 
-        return false
+        return {ccNumber, ccCSC, ccDate, amount}
     }
 
     const separate = (xs, s) => xs.length ? [xs.slice(0, s), ...separate(xs.slice(s), s)] : []
@@ -94,6 +99,8 @@ const Card = ({showPopUpHandler}) => {
                                 autoComplete={"cc-number"}
                                 maxLength={19}
                                 placeholder={"xxxx xxxx xxxx xxxx"}/>
+                            {errors.ccNumber.length > 0 &&
+                                <span className={s.error}>{errors.ccNumber}</span>}
                         </div>
                         <div className={s.cardDateCVV}>
                             <div className={s.field}>
@@ -106,6 +113,8 @@ const Card = ({showPopUpHandler}) => {
                                         }}
                                         inputMode={"numeric"} maxLength={2} autoComplete={"cc-exp-month"}
                                         placeholder={'MM'}/>
+                                    {errors.ccDate.length > 0 &&
+                                        <span className={s.error}>{errors.ccDate}</span>}
                                     <span>/</span>
                                     <input
                                         value={values.ccYear ? values.ccYear : ''}
@@ -125,7 +134,9 @@ const Card = ({showPopUpHandler}) => {
                                     }}
                                     type={"password"}
                                     inputMode={"numeric"} required autoComplete="cc-csc" maxLength={3}
-                                    placeholder={"xxxx xxxx xxxx xxxx"}/>
+                                    placeholder={"xxx"}/>
+                                {errors.ccCSC.length > 0 &&
+                                    <span className={s.error}>{errors.ccCSC}</span>}
                             </div>
                         </div>
                         <div className={s.field + ' ' + s.amount}>
@@ -136,9 +147,16 @@ const Card = ({showPopUpHandler}) => {
                                    }}
                                    type={'tel'} inputMode={"numeric"} maxLength={19}
                                    placeholder={"xxx"}/>
+                            {errors.amount.length > 0 &&
+                                <span className={s.error}>{errors.amount}</span>}
                         </div>
                         <div className={s.btn}>
-                            <button disabled={hasErrors} type={"submit"} onClick={onclickHandler}>Submit</button>
+                            <button disabled={
+                                (errors.ccNumber.length>0 ||
+                                errors.ccDate.length>0 ||
+                                errors.ccCSC.length>0 ||
+                                errors.amount.length>0)
+                            } type={"submit"} onClick={onclickHandler}>Submit</button>
                         </div>
                     </form>
                 </div>

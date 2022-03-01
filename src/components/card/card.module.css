@@ -34,6 +34,7 @@
 .field{
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .field input{
@@ -76,4 +77,12 @@
 .card button{
     padding:10px 10px;
     width: 50%;
+}
+
+.error{
+    color: #d00028;
+    font-size: 12px;
+    position: absolute;
+    bottom: -18px;
+    left: 5px;
 }
