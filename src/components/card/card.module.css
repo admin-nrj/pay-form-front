@@ -10,9 +10,70 @@
     left: 50%;
     transform: translate(-50%, -50%);
     border-radius: 20px;
-    background-color: gray;
-    padding: 20px;
+    background-color: #b4b3b3;
+    padding: 40px;
     min-height: 300px;
     min-width: 500px;
+}
 
+.card h2{
+    margin-bottom: 10px;
+}
+
+.payLogos{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.payLogos img{
+    height: 50px;
+}
+
+.field{
+    display: flex;
+    flex-direction: column;
+}
+
+.field input{
+    padding: 10px;
+}
+.field input::placeholder {
+    color: #b4b3b3;
+}
+
+.field label{
+    margin-bottom: 5px;
+}
+.cardNumber{
+    margin-bottom: 20px;
+}
+.expDate{
+    display: flex;
+}
+.expDate input{
+    max-width: 50px;
+}
+.expDate span{
+    padding:10px;
+}
+.cardDateCVV{
+    display: flex;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+.amount{
+    margin-bottom: 30px;
+}
+.cvv input{
+    max-width: 50px;
+}
+.btn{
+    display: flex;
+    justify-content: center;
+}
+.card button{
+    padding:10px 10px;
+    width: 50%;
 }
